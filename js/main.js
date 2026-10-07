@@ -30,13 +30,7 @@ links.querySelectorAll("a").forEach((a) =>
 );
 
 /* ---------- Typewriter ---------- */
-const roles = [
-  "Développeur Fullstack",
-  "React · VueJS · Laravel",
-  "Intégration & SEO",
-  "Créateur d'APIs",
-  "HTML-emailing & automatisation",
-];
+const roles = (window.SITE_CONTENT && window.SITE_CONTENT.profile.roles) || [""];
 
 const typeEl = document.getElementById("typewriter");
 let roleIndex = 0;

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Administration — Portfolio</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../css/style.css" />
+<style>
+  body { padding-top: 0; }
+
+  .a-top {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    padding: 14px 24px;
+    background: rgba(4, 5, 11, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .a-brand { font-family: var(--display); font-weight: 700; font-size: 1.1rem; }
+  .a-brand span {
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .a-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .a-actions button, .a-actions a {
+    font-size: .85rem; padding: 9px 16px; border-radius: 99px;
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--text); transition: .25s;
+  }
+  .a-actions button:hover, .a-actions a:hover { border-color: var(--brand); background: var(--surface-2); }
+  #btnSave { background: rgba(124,92,255,.2); border-color: var(--brand); font-weight: 600; }
+  #dirtyFlag { font-size: .78rem; color: var(--brand-3); font-style: italic; }
+
+  .a-status {
+    position: fixed; left: 50%; top: 74px; transform: translate(-50%, -14px);
+    background: rgba(10, 14, 26, .97); border: 1px solid var(--line);
+    color: var(--brand-2); padding: 10px 20px; border-radius: 99px;
+    font-size: .86rem; opacity: 0; pointer-events: none; transition: .3s; z-index: 60;
+  }
+  .a-status.show { opacity: 1; transform: translate(-50%, 0); }
+  .a-status.err { color: var(--brand-3); border-color: var(--brand-3); }
+
+  .a-wrap { display: grid; grid-template-columns: 230px 1fr; min-height: calc(100vh - 57px); }
+  .a-side {
+    border-right: 1px solid var(--line); padding: 22px 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    background: rgba(10, 12, 24, .5);
+  }
+  .side-btn {
+    text-align: left; padding: 11px 14px; border-radius: 12px;
+    font-size: .9rem; color: var(--muted); border: 1px solid transparent;
+    transition: .2s;
+  }
+  .side-btn:hover { background: var(--surface); color: var(--text); }
+  .side-btn.active { background: rgba(124,92,255,.16); border-color: var(--brand); color: var(--text); font-weight: 600; }
+
+  .a-main { padding: 30px clamp(16px, 4vw, 46px) 70px; max-width: 900px; }
+  .a-h1 { font-family: var(--display); font-size: 1.6rem; margin-bottom: 20px; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 24px;
+    display: grid; gap: 18px;
+  }
+  .f { display: grid; gap: 6px; }
+  .f-inline { grid-template-columns: auto 1fr; align-items: center; gap: 10px; }
+  .f label { font-size: .8rem; letter-spacing: .04em; color: var(--muted); }
+  .f input[type=text], .f input[type=number], .f textarea, .f select {
+    width: 100%; padding: 11px 13px; border-radius: 10px;
+    background: rgba(255,255,255,.04); border: 1px solid var(--line);
+    color: var(--text); font-family: inherit; font-size: .93rem;
+    transition: border-color .2s, background .2s;
+  }
+  .f textarea { resize: vertical; line-height: 1.6; }
+  .f input:focus, .f textarea:focus, .f select:focus {
+    outline: none; border-color: var(--brand); background: rgba(124,92,255,.07);
+  }
+  .f select option { background: #0a0c18; }
+  .chk { width: 18px; height: 18px; accent-color: var(--brand); }
+  .chk-label { font-size: .9rem; }
+  .hint { font-size: .76rem; color: var(--muted); opacity: .8; }
+  .err { color: var(--brand-3); }
+
+  .rep { display: grid; gap: 12px; }
+  .rep-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+    padding-top: 6px; border-top: 1px dashed var(--line);
+  }
+  .rep-title { font-size: .85rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--brand-2); }
+  .rep-item {
+    background: rgba(255,255,255,.03); border: 1px solid var(--line);
+    border-radius: 14px; padding: 16px; display: grid; gap: 14px;
+  }
+  .rep-item-head { display: flex; align-items: center; gap: 8px; }
+  .rep-index { font-family: var(--mono, monospace); font-size: .8rem; color: var(--muted); margin-right: auto; }
+
+  .mini {
+    font-size: .78rem; padding: 5px 11px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
+    transition: .2s;
+  }
+  .mini:hover { border-color: var(--brand); }
+  .mini.ghost { background: transparent; color: var(--muted); }
+  .mini.ghost:hover { color: var(--brand-3); border-color: var(--brand-3); }
+
+  .a-add { justify-self: start; margin-bottom: 16px; }
+  .items { display: grid; gap: 10px; }
+  .item {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; padding: 15px 18px;
+    transition: border-color .25s;
+  }
+  .item:hover { border-color: rgba(124,92,255,.4); }
+  .item-body { display: grid; gap: 2px; min-width: 0; }
+  .item-body strong { font-size: .98rem; }
+  .item-acts { display: flex; gap: 7px; flex-wrap: wrap; }
+
+  .edit-head h2 { font-family: var(--display); font-size: 1.15rem; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-save {
+    padding: 11px 24px; border-radius: 99px; font-weight: 600; font-size: .9rem;
+    background: var(--grad); color: #06070f; border: none;
+  }
+  .btn-ghost {
+    padding: 11px 24px; border-radius: 99px; font-size: .9rem;
+    background: transparent; color: var(--muted); border: 1px solid var(--line);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--brand); }
+
+  @media (max-width: 860px) {
+    .a-wrap { grid-template-columns: 1fr; }
+    .a-side { flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    .side-btn { white-space: nowrap; }
+  }
+</style>
+</head>
+<body>
+
+<header class="a-top">
+  <div class="a-brand">Administration — <span>Portfolio</span></div>
+  <div class="a-actions">
+    <span id="dirtyFlag"></span>
+    <button id="btnOpen" type="button">Ouvrir content.js</button>
+    <button id="btnDownload" type="button">Télécharger</button>
+    <button id="btnReset" type="button">Réinitialiser</button>
+    <button id="btnSave" type="button">Enregistrer</button>
+    <a href="../index.html" target="_blank" rel="noopener">Voir le site ↗</a>
+  </div>
+</header>
+
+<div class="a-status" id="status"></div>
+
+<div class="a-wrap">
+  <aside class="a-side" id="side"></aside>
+  <main class="a-main" id="main"></main>
+</div>
+
+<input type="file" id="fileInput" accept=".js,.json" hidden />
+
+<script src="../data/content.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
